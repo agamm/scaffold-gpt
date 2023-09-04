@@ -43,3 +43,8 @@ export async function saveOpenAiKey(openaiKey) {
     console.error("Error saving OpenAI API key:", error.message);
   }
 }
+
+export function getOpenAiKey() {
+  const file = fsS.readFileSync(configPath).toString();
+  return JSON.parse(file);
+}

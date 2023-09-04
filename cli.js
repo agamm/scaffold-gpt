@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import axios from "axios";
 
 import { getConfig } from "./config.js";
-import { getInstallDocs } from "./scaffold.js";
+import { openAi } from "./openAI.js";
 
 const program = new Command();
 program.version("1.0.0");
@@ -32,7 +31,8 @@ program
       console.log("Plugins:", plugins);
 
       console.log("Searching docs for ${framwrok}:${version}...");
-      await getInstallDocs("nextjs");
+      // await getInstallDocs("nextjs");
+      await openAi("What is 3*7");
     } catch (e) {
       console.error(e.message);
     }
