@@ -1,0 +1,2 @@
+- Remember doc urls / body
+- Retry errors and ask user for fixes

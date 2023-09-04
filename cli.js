@@ -3,7 +3,7 @@
 import { Command } from "commander";
 
 import { getConfig } from "./config.js";
-import { openAi } from "./openAI.js";
+import { generateTasks, executeTasks } from "./scaffold.js";
 
 const program = new Command();
 program.version("1.0.0");
@@ -30,9 +30,11 @@ program
       );
       console.log("Plugins:", plugins);
 
-      console.log("Searching docs for ${framwrok}:${version}...");
-      // await getInstallDocs("nextjs");
-      await openAi("What is 3*7");
+      console.log(
+        `Searching docs and generating tasks for ${framework}:${version}...`
+      );
+      const tasks = await generateTasks(framework, version);
+      await executeTasks(tasks);
     } catch (e) {
       console.error(e.message);
     }
