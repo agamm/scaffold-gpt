@@ -4,6 +4,7 @@ import { Command } from "commander";
 import axios from "axios";
 
 import { getConfig } from "./config.js";
+import { getInstallDocs } from "./scaffold.js";
 
 const program = new Command();
 program.version("1.0.0");
@@ -29,6 +30,9 @@ program
         `Creating scaffold for ${framework} at version ${version}...`
       );
       console.log("Plugins:", plugins);
+
+      console.log("Searching docs for ${framwrok}:${version}...");
+      await getInstallDocs("nextjs");
     } catch (e) {
       console.error(e.message);
     }
