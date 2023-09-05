@@ -5,7 +5,7 @@ import cheerio from "cheerio";
 import { openAi } from "./openAI.js";
 import inquirer from "inquirer";
 
-import { execa } from "execa";
+import { execaCommandSync } from "execa";
 
 async function searchGoogle(term) {
   const options = {
@@ -23,18 +23,18 @@ async function searchGoogle(term) {
 
 function getMainText(htmlBody) {
   // Load the HTML into cheerio
-  const $ = cheerio.load(htmlBody);
+  const c = cheerio.load(htmlBody);
 
   // Define elements to exclude (e.g., navigation and footer)
   const elementsToExclude = ["header", "nav", "footer", "script"];
 
   // Remove unwanted elements and their descendants
   elementsToExclude.forEach((element) => {
-    $(element).remove();
+    c(element).remove();
   });
 
   // Extract text content from remaining elements
-  return $("body").html();
+  return c("body").html();
 }
 
 async function getHTMLText(url) {
@@ -71,7 +71,10 @@ export async function generateTasks(tech, version) {
   console.log(`Fetching the docs for ${tech}...`);
   const docsText = await getInstallDocs(tech, version);
 
-  const instructions = `Given the docs and a technology, output JSON machine readable ${platform} of all steps to install that technology. Make sure you follow the docs. Like so:
+  const instructions = `Given the docs and a technology, output JSON machine readable ${platform} of all steps to install that technology. 
+  Make sure you follow the docs. 
+  Before each command make sure you actually need to run it (e.g. before installing something check if it's already installed).
+  Output JSON strucutre:
   ["command here", "command 2 here"...]`;
 
   console.log("Building tasks via gpt...");
@@ -93,8 +96,10 @@ export async function executeTasks(tasks) {
   try {
     for (const task of newTasks) {
       console.log(`Task command: ${task}`);
-      const { stdout } = await execa(task);
-      console.log(stdout);
+      const { stdout, stderr } = execaCommandSync(task, {
+        shell: true,
+      });
+      console.log(stdout, "error:", stderr);
     }
   } catch (error) {
     console.error("Error executing task:", error);
