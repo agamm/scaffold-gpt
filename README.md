@@ -8,3 +8,10 @@ It will query google to find the latest docs, then run the commands needed to st
 git clone for now.  
 `npm i -g <path-to-scaffold-gpt>`  
 `scaffold next:13 tailwindcss eslint`
+
+Getting started without global install:
+
+```sh
+npm i
+bun cli.js next:13 tailwindcss eslint
+```
