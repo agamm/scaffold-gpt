@@ -1,11 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs/promises";
 
-import { getOpenAiKey } from "./config.js";
-
-const openai = new OpenAI({
-  apiKey: getOpenAiKey().openaiKey,
-});
+const openai = new OpenAI({ apiKey: process.env.OPEN_AI_KEY });
 
 export async function openAi(commandText, instructions, model = "gpt-4") {
   // Debug the prompt

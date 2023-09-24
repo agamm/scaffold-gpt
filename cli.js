@@ -2,7 +2,6 @@
 
 import { Command } from "commander";
 
-import { getConfig } from "./config.js";
 import { generateTasks, executeTasks } from "./scaffold.js";
 
 const program = new Command();
@@ -12,11 +11,8 @@ program
   .arguments("<framework>:<version> [plugins...]")
   .description("Create a scaffold with specified framework and plugins")
   .action(async (frameworkVersion, plugins) => {
-    // Get the OpenAI API key is set
     try {
-      const openaiKey = await getConfig();
-
-      const [framework, version] = frameworkVersion.split(":");
+      let [framework, version] = frameworkVersion.split(":");
       if (!version) version = "*";
       if (!framework || !version) {
         throw new Error(
