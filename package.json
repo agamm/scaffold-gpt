@@ -22,7 +22,7 @@
     "cheerio": "^1.0.0-rc.12",
     "commander": "^11.0.0",
     "execa": "^8.0.1",
-    "googlethis": "^1.7.1",
+    "googlethis": "^1.8.0",
     "html-to-text": "^9.0.5",
     "inquirer": "^9.2.10",
     "openai": "^4.4.0"

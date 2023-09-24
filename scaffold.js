@@ -5,7 +5,7 @@ import cheerio from "cheerio";
 import { openAi } from "./openAI.js";
 import inquirer from "inquirer";
 
-import { execaCommandSync } from "execa";
+import { spawn } from "child_process";
 
 async function searchGoogle(term) {
   const options = {
@@ -18,6 +18,8 @@ async function searchGoogle(term) {
   };
 
   const response = await google.search(term, options);
+  if (response.results.length === 0)
+    throw new Error(`No results found for docs search '${term}'`);
   return response.results[0].url;
 }
 
@@ -70,16 +72,16 @@ export async function generateTasks(tech, version) {
 
   console.log(`Fetching the docs for ${tech}...`);
   const docsText = await getInstallDocs(tech, version);
+  const docsTextLimit = docsText.replace("\n\n\n", "\n").substring(0, 6000);
 
-  const instructions = `Given the docs and a technology, output JSON machine readable ${platform} of all steps to install that technology. 
-  Make sure you follow the docs. 
-  Before each command make sure you actually need to run it (e.g. before installing something check if it's already installed).
+  const instructions = `Given the docs and a technology, output JSON ALL steps to install that technology via the command line. 
+  Make sure you follow the docs. Prefer the easy steps instead of all the manual steps. Assume you have the runtime already (node/npx/pip/python...)
   Output JSON strucutre:
   ["command here", "command 2 here"...]`;
 
   console.log("Building tasks via gpt...");
   const tasksRaw = await openAi(
-    `using these docs:\n${docsText}\nOutput a JSON array of string commands to install ${tech}${versionString} on my ${platform} machine:\n`,
+    `using these docs:\n${docsTextLimit}\nOutput a JSON array of ALL the commands to install ${tech}${versionString} on my ${platform} machine:\n`,
     instructions
   );
 
@@ -96,14 +98,21 @@ export async function executeTasks(tasks) {
   try {
     for (const task of newTasks) {
       console.log(`Task command: ${task}`);
-      const { stdout, stderr } = execaCommandSync(task, {
-        shell: true,
-      });
-      console.log(stdout, "error:", stderr);
+      runCommand(task);
     }
   } catch (error) {
     console.error("Error executing task:", error);
   }
+}
+
+function runCommand(command) {
+  const shell = spawn(`sh -c "${command}"`, [], {
+    stdio: "inherit",
+    shell: true,
+  });
+  shell.on("close", (code) => {
+    console.log("[shell] terminated :", code);
+  });
 }
 
 async function fitlerCommandsCLI(array) {
